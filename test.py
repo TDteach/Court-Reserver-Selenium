@@ -63,9 +63,11 @@ def main():
     if record is None: record = list()
 
     selected_keys = None
-    court_botton_xpath = '//*[@id="tabBookingFacilities"]/button'
-    court_bottons = driver.find_elements(By.XPATH, court_botton_xpath)
-    for k, cb in enumerate(court_bottons):
+
+    court_order = [0,2,1]
+    for k in court_order:
+        court_botton_xpath = '//*[@id="tabBookingFacilities"]/button'
+        court_bottons = driver.find_elements(By.XPATH, court_botton_xpath)
         cb.click()
         driver.implicitly_wait(0.5)
         time.sleep(2)
