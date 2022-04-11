@@ -282,6 +282,15 @@ def save_json_record(record_path, record):
     print('save json record to', record_json_path)
 
 
+
+def run():
+    try:
+        main()
+    except e:
+        print(e)
+        pass
+
+
 def a():
     print(datetime.now())
 
@@ -292,5 +301,5 @@ if __name__ == '__main__':
     from apscheduler.schedulers.blocking import BlockingScheduler
 
     sched = BlockingScheduler()
-    sched.add_job(main, 'cron', day='*', hour='0', minute='2-15/3,20,30')
+    sched.add_job(run, 'cron', day='*', hour='0', minute='2-15/3,20,30')
     sched.start()
