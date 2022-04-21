@@ -29,6 +29,8 @@ def main():
             print('booked already')
             return
 
+
+
     # chrome binary should be installed first
     # '''bash
     # wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
@@ -39,6 +41,8 @@ def main():
     options.headless = True
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     driver.set_window_size(1920, 1080)
+
+    print('Current time is', datetime.now())
 
     driver.get(url)
     driver.implicitly_wait(0.5)
@@ -79,7 +83,7 @@ def main():
 
     selected_keys = None
 
-    court_order = [0,2,1]
+    court_order = [2,1,0]
     for k in court_order:
         court_botton_xpath = '//*[@id="tabBookingFacilities"]/button'
         court_bottons = driver.find_elements(By.XPATH, court_botton_xpath)
