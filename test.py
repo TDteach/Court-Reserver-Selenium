@@ -18,14 +18,18 @@ st_time = datetime.strptime('7:00PM', '%I:%M%p')
 ed_time = datetime.strptime('11:00PM', '%I:%M%p')
 desired_time_interval = [(st_time, ed_time)]
 
+driver = None
 
 def main():
+    global driver
     record = load_pickle_record(record_path)
     if record:
         last_update_time = record[-1]['update_time']
         if last_update_time.day == datetime.now().day:
             print('booked already')
             return
+
+
 
     # chrome binary should be installed first
     # '''bash
@@ -37,6 +41,8 @@ def main():
     options.headless = True
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     driver.set_window_size(1920, 1080)
+
+    print('Current time is', datetime.now())
 
     driver.get(url)
     driver.implicitly_wait(0.5)
@@ -56,16 +62,32 @@ def main():
     username = data[0].split(':')[1].strip()
     password = data[1].split(':')[1].strip()
     login_with_IU_account(driver, username, password)
-    time.sleep(5)
+    time.sleep(2)
 
-    book_date = select_last_day(driver)
+    duo_approved = False
+    for k in range(15):
+        try:
+            book_date = select_last_day(driver)
+        except:
+            print('wait duo approved for %d seconds'%((k+1)*2))
+            time.sleep(2)
+            continue
+        duo_approved = True
+        break
+    if not duo_approved:
+        print("duo has not been approved!!")
+        driver.quit()
+        return
     if record and book_date <= record[-1]['book_date']: return
     if record is None: record = list()
 
     selected_keys = None
-    court_botton_xpath = '//*[@id="tabBookingFacilities"]/button'
-    court_bottons = driver.find_elements(By.XPATH, court_botton_xpath)
-    for k, cb in enumerate(court_bottons):
+
+    court_order = [2,1,0]
+    for k in court_order:
+        court_botton_xpath = '//*[@id="tabBookingFacilities"]/button'
+        court_bottons = driver.find_elements(By.XPATH, court_botton_xpath)
+        cb = court_bottons[k]
         cb.click()
         driver.implicitly_wait(0.5)
         time.sleep(2)
@@ -283,15 +305,26 @@ def save_json_record(record_path, record):
     print('save json record to', record_json_path)
 
 
+
+def run():
+    try:
+        main()
+    except Exception as e:
+        print(e)
+        driver.quit()
+        print('Error, driver quited')
+        pass
+
+
 def a():
     print(datetime.now())
 
 
 if __name__ == '__main__':
-    # main()
+    # run()
     # exit(0)
     from apscheduler.schedulers.blocking import BlockingScheduler
 
     sched = BlockingScheduler()
-    sched.add_job(main, 'cron', day='*', hour='0', minute='2-15/3,20,30')
+    sched.add_job(run, 'cron', day='*', hour='0', minute='2-15/3,20,30')
     sched.start()
