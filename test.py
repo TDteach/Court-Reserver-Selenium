@@ -215,12 +215,15 @@ def select_timeslot(time_dict):
             if begin_time <= time_dict[k]['start_time'] and time_dict[k]['end_time'] <= end_time:
                 av = 1
             a.append(av & time_dict[k]['availabel'])
-        for i in range(len(a) - 3):
-            if sum(a[i:i + 3]) >= 3:
-                if i + 4 <= len(a) and sum(a[i:i + 4]) >= 4:
-                    selected_keys = all_keys[i:i + 4]
-                else:
-                    selected_keys = all_keys[i:i + 3]
+        for i in range(len(a) - 2):
+            if i + 4 <= len(a) and sum(a[i:i + 4]) >= 4:
+                selected_keys = all_keys[i:i + 4]
+                break
+            elif i + 3 <= len(a) and sum(a[i:i + 3]) >= 3:
+                selected_keys = all_keys[i:i + 3]
+                break
+            elif i + 2 <= len(a) and sum(a[i:i + 2]) >= 2:
+                selected_keys = all_keys[i:i + 2]
                 break
         if selected_keys is not None:
             break
