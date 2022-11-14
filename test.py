@@ -38,7 +38,7 @@ def main():
     # google-chrome
     # '''
     options = webdriver.ChromeOptions()
-    options.headless = True
+    # options.headless = True
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     driver.set_window_size(1920, 1080)
 
@@ -182,15 +182,19 @@ def select_last_day(driver):
     driver.implicitly_wait(1)
     time.sleep(3)
 
+    '''
     for _ in range(3):
         next_buttons = driver.find_elements(By.XPATH, '//*[@id="divBookingDateSelector"]/div[2]/div[2]/button')
         try:
+            print('try')
             next_buttons[-1].click()
             time.sleep(1)
         except:
             break
 
     last_button = driver.find_elements(By.XPATH, '//*[@id="divBookingDateSelector"]/div[2]/div[2]/button')[-2]
+    '''
+    last_button = driver.find_elements(By.XPATH, '//*[@id="divBookingDateSelector"]/div[2]/div[2]/button')[-1]
     date_str = last_button.get_dom_attribute('data-date-text')
     book_date = datetime.strptime(date_str, '%b %d, %Y')
     last_button.click()
