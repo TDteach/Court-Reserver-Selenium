@@ -38,7 +38,7 @@ def main():
     # google-chrome
     # '''
     options = webdriver.ChromeOptions()
-    # options.headless = True
+    options.headless = True
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     driver.set_window_size(1920, 1080)
 
