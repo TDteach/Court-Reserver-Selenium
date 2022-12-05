@@ -38,7 +38,7 @@ def main():
     # google-chrome
     # '''
     options = webdriver.ChromeOptions()
-    options.headless = True
+    # options.headless = True
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     driver.set_window_size(1920, 1080)
 
@@ -52,7 +52,7 @@ def main():
     for k, b in enumerate(a):
         if 'Badminton' in b.text:
             badminton_element = b
-            print(k)
+            break
     badminton_element.click()
     driver.implicitly_wait(0.5)
     time.sleep(2)
@@ -61,23 +61,30 @@ def main():
         data = f.readlines()
     username = data[0].split(':')[1].strip()
     password = data[1].split(':')[1].strip()
-    login_with_IU_account(driver, username, password)
-    time.sleep(2)
+    duo_approved = login_with_IU_account(driver, username, password)
 
-    duo_approved = False
-    for k in range(15):
-        try:
-            book_date = select_last_day(driver)
-        except:
-            print('wait duo approved for %d seconds'%((k+1)*2))
-            time.sleep(2)
-            continue
-        duo_approved = True
-        break
+
     if not duo_approved:
         print("duo has not been approved!!")
         driver.quit()
         return
+
+
+    time.sleep(2)
+
+    badminton_element = None
+    a = driver.find_elements(By.CLASS_NAME, 'container-link-text-item')
+    for k, b in enumerate(a):
+        if 'Badminton' in b.text:
+            badminton_element = b
+            break
+    print(badminton_element.text)
+    badminton_element.click()
+    driver.implicitly_wait(2)
+    time.sleep(2)
+
+    book_date = select_last_day(driver)
+
     if record and book_date <= record[-1]['book_date']: return
     if record is None: record = list()
 
@@ -146,12 +153,22 @@ def login_with_IU_account(driver, username, password):
 
     driver.implicitly_wait(1)
     time.sleep(5)
-    actions = ActionChains(driver)
-    actions.send_keys(Keys.TAB)
-    actions.send_keys(Keys.DOWN)
-    actions.send_keys(Keys.TAB)
-    actions.send_keys(Keys.ENTER)
-    actions.perform()
+
+
+    duo_approved = True
+    for k in range(15):
+        try:
+            a = driver.find_elements(By.ID, 'dont-trust-browser-button')
+            print(a[0].text)
+            a[0].click()
+            break
+        except:
+            print('wait duo approved for %d seconds'%((k+1)*2))
+            time.sleep(2)
+            continue
+        duo_approved = True
+
+    return duo_approved
 
 
 def transfer_timestr(time_str):
@@ -174,14 +191,15 @@ def transfer_timestr(time_str):
 
 
 def select_last_day(driver):
-    time.sleep(1)
-
-    button = driver.find_element(By.XPATH, '//*[@id="divBookingProducts-large"]/div[4]/a/div')
-    button.click()
-
-    driver.implicitly_wait(1)
     time.sleep(3)
 
+
+    '''
+    button = driver.find_element(By.XPATH, '//*[@id="divBookingProducts-large"]/div[4]/a/div')
+    button.click()
+    driver.implicitly_wait(1)
+    time.sleep(3)
+    '''
     '''
     for _ in range(3):
         next_buttons = driver.find_elements(By.XPATH, '//*[@id="divBookingDateSelector"]/div[2]/div[2]/button')
@@ -325,8 +343,8 @@ def a():
 
 
 if __name__ == '__main__':
-    # run()
-    # exit(0)
+    run()
+    exit(0)
     from apscheduler.schedulers.blocking import BlockingScheduler
 
     sched = BlockingScheduler()
